@@ -13,6 +13,8 @@ from .transforms import (Albu, CutOut, Expand, MinIoURandomCrop, Normalize,
                          RandomCrop, RandomFlip, RandomShift, Resize,
                          SegRescale)
 
+from .manage_multichannel_image import (LoadMultiChannelImgFromFile, ResizeMultiChannel, NormalizeMultiChannel)
+
 __all__ = [
     'Compose', 'to_tensor', 'ToTensor', 'ImageToTensor', 'ToDataContainer',
     'Transpose', 'Collect', 'DefaultFormatBundle', 'LoadAnnotations',
@@ -22,5 +24,6 @@ __all__ = [
     'MinIoURandomCrop', 'Expand', 'PhotoMetricDistortion', 'Albu',
     'InstaBoost', 'RandomCenterCropPad', 'AutoAugment', 'CutOut', 'Shear',
     'Rotate', 'ColorTransform', 'EqualizeTransform', 'BrightnessTransform',
-    'ContrastTransform', 'Translate', 'RandomShift'
+    'ContrastTransform', 'Translate', 'RandomShift', 'LoadMultiChannelImgFromFile',
+    'ResizeMultiChannel', 'NormalizeMultiChannel'
 ]
