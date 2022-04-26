@@ -1,4 +1,4 @@
-# Copyright (c) OpenMMLab. All rights reserved.
+# Copyright (c) Gradiant. All rights reserved.
 import os.path as osp
 
 import cv2
@@ -116,8 +116,8 @@ class NormalizeMultiChannel(transforms.Normalize):
     """Normalize the image.
     Added key is "img_norm_cfg".
     Args:
-        mean (sequence): Mean values of 3 channels.
-        std (sequence): Std values of 3 channels.
+        mean (float): Mean value.
+        std (float): Std value.
         to_rgb (bool): Whether to convert the image from BGR to RGB,
             default is true.
     """
