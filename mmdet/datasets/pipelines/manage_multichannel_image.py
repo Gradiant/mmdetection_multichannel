@@ -12,7 +12,7 @@ from cv2 import (
     IMREAD_UNCHANGED,
 )
 from mmdet.core import BitmapMasks, PolygonMasks
-from skimage import io, transform
+from skimage import io, transform, auto_augment
 
 from ..builder import PIPELINES
 from . import transforms
@@ -22,6 +22,11 @@ try:
 except ImportError:
     rgb2id = None
 
+_MAX_LEVEL = 10
+
+def enhance_level_to_value(level, a=1.8, b=0.1):
+    """Map from level to values."""
+    return (level / _MAX_LEVEL) * a + b
 
 @PIPELINES.register_module()
 class LoadMultiChannelImgFromFile:
@@ -109,3 +114,42 @@ class ResizeMultiChannel(transforms.Resize):
         results["pad_shape"] = img.shape  # in case that there is no padding
         results["scale_factor"] = scale_factor
         results["keep_ratio"] = self.keep_ratio
+
+@PIPELINES.register_module()
+class BrightnessTransformMultiChannel(auto_augment.BrightnessTransform):
+    
+    def __init__(self, level, prob=0.5, dims=[]):
+        assert isinstance(level, (int, float)), \
+            'The level must be type int or float.'
+        assert 0 <= level <= _MAX_LEVEL, \
+            'The level should be in range [0,_MAX_LEVEL].'
+        assert 0 <= prob <= 1.0, \
+            'The probability should be in range [0,1].'
+        self.level = level
+        self.prob = prob
+        self.factor = enhance_level_to_value(level)
+        self.dims = dims
+
+    def __call__(self, results):
+        """Call function for Brightness transformation.
+
+        Args:
+            results (dict): Results dict from loading pipeline.
+
+        Returns:
+            dict: Results after the transformation.
+        """
+        if np.random.rand() > self.prob:
+            return results
+        assert len(self.dims) <= results['img'].shape[-1], \
+            'Selected channels can\'t be greater than numer of channels' 
+        if len(self.dims) != 0:
+            original_img = results['img']
+            results['img'] = results['img'][:,:,self.dims]
+
+        self._adjust_brightness_img(results, self.factor)
+        
+        original_img[:,:,self.dims] = results['img']
+        results['img'] = original_img
+
+        return results

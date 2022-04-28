@@ -13,7 +13,8 @@ from .transforms import (Albu, CutOut, Expand, MinIoURandomCrop, Normalize,
                          RandomCrop, RandomFlip, RandomShift, Resize,
                          SegRescale)
 
-from .manage_multichannel_image import (LoadMultiChannelImgFromFile, ResizeMultiChannel)
+from .manage_multichannel_image import (LoadMultiChannelImgFromFile, 
+                                        ResizeMultiChannel, BrightnessTransformMultiChannel)
 
 __all__ = [
     'Compose', 'to_tensor', 'ToTensor', 'ImageToTensor', 'ToDataContainer',
@@ -25,5 +26,5 @@ __all__ = [
     'InstaBoost', 'RandomCenterCropPad', 'AutoAugment', 'CutOut', 'Shear',
     'Rotate', 'ColorTransform', 'EqualizeTransform', 'BrightnessTransform',
     'ContrastTransform', 'Translate', 'RandomShift', 'LoadMultiChannelImgFromFile',
-    'ResizeMultiChannel'
+    'ResizeMultiChannel', 'BrightnessTransformMultiChannel'
 ]
