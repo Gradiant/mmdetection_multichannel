@@ -119,15 +119,27 @@ class ResizeMultiChannel(transforms.Resize):
 class BrightnessTransformMultiChannel(auto_augment.BrightnessTransform):
     
     def __init__(self, level, prob=0.5, dims=[]):
-        assert isinstance(level, (int, float)), \
-            'The level must be type int or float.'
-        assert 0 <= level <= _MAX_LEVEL, \
-            'The level should be in range [0,_MAX_LEVEL].'
+
+        assert isinstance(level, (int, float, list)), \
+            'The level must be type list, int or float.'
+        assert isinstance(dims, (list)), \
+            'dims must be list of channels'
         assert 0 <= prob <= 1.0, \
             'The probability should be in range [0,1].'
+
+        if isinstance(level, (list)):
+            if isinstance(dims, list):
+                assert len(level)==len(dims), \
+                    'Level list length should match dimension list length'
+            for l in level:
+                assert 0 <= l <= _MAX_LEVEL, \
+                    'The level should be in range [0,_MAX_LEVEL].'
+        else:
+            assert 0 <= level <= _MAX_LEVEL, \
+                'The level should be in range [0,_MAX_LEVEL].'
+        
         self.level = level
         self.prob = prob
-        self.factor = enhance_level_to_value(level)
         self.dims = dims
 
     def __call__(self, results):
@@ -141,15 +153,33 @@ class BrightnessTransformMultiChannel(auto_augment.BrightnessTransform):
         """
         if np.random.rand() > self.prob:
             return results
-        assert len(self.dims) <= results['img'].shape[-1], \
-            'Selected channels can\'t be greater than numer of channels' 
-        if len(self.dims) != 0:
-            original_img = results['img']
-            results['img'] = results['img'][:,:,self.dims]
 
-        self._adjust_brightness_img(results, self.factor)
+        original_img = results['img']
         
-        original_img[:,:,self.dims] = results['img']
+        assert len(self.dims) <= original_img.shape[-1], \
+            'Selected channels can\'t be greater than numer of channels' 
+        
+        for d in self.dims:
+            assert d <= (original_img.shape[-1]-1) , \
+            f'Channel must be one of {range(0, original_img.shape[-1]-1)} but found {d}' 
+
+        if len(self.dims) != 0:
+
+            if isinstance(self.level, list):
+
+                for l, d in zip(self.level, self.dims):
+                    results['img'] = original_img[:,:,d]
+                    self._adjust_brightness_img(results, enhance_level_to_value(l))
+                    original_img[:,:,d] = results['img']
+            
+            else:
+                results['img'] = original_img[:,:,self.dims]
+                self._adjust_brightness_img(results, enhance_level_to_value(self.level))
+                original_img[:,:,self.dims] = results['img']
+        
+        else:
+            self._adjust_brightness_img(results, enhance_level_to_value(self.level))
+
         results['img'] = original_img
 
         return results
