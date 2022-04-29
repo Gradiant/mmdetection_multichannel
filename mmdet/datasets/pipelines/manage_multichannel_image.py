@@ -12,10 +12,10 @@ from cv2 import (
     IMREAD_UNCHANGED,
 )
 from mmdet.core import BitmapMasks, PolygonMasks
-from skimage import io, transform, auto_augment
+from skimage import io, transform
 
 from ..builder import PIPELINES
-from . import transforms
+from . import transforms, auto_augment
 
 try:
     from panopticapi.utils import rgb2id
