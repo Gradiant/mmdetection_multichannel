@@ -128,7 +128,7 @@ class BrightnessTransformMultiChannel(auto_augment.BrightnessTransform):
             'The probability should be in range [0,1].'
 
         if isinstance(level, (list)):
-            if isinstance(dims, list):
+            if isinstance(dims, list) and len(dims) != 0:
                 assert len(level)==len(dims), \
                     'Level list length should match dimension list length'
             for l in level:
@@ -178,7 +178,16 @@ class BrightnessTransformMultiChannel(auto_augment.BrightnessTransform):
                 original_img[:,:,self.dims] = results['img']
         
         else:
-            self._adjust_brightness_img(results, enhance_level_to_value(self.level))
+            if isinstance(self.level, list):
+                assert len(self.level) == original_img.shape[-1], \
+                    'When type(level)==list, len(level) should match total number of channels' 
+
+                for d, l in enumerate(self.level):
+                    results['img'] = original_img[:,:,d]
+                    self._adjust_brightness_img(results, enhance_level_to_value(l))
+                    original_img[:,:,d] = results['img']
+            else:
+                self._adjust_brightness_img(results, enhance_level_to_value(self.level))
 
         results['img'] = original_img
 
