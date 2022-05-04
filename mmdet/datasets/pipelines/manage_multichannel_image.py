@@ -199,7 +199,7 @@ class NormalizeMinMaxChannelwise:
     """
 
     def __init__(self):
-        print("Normalizing array between 0 and 1 per channel")
+        pass
 
     def __call__(self, results):
         """Call function to normalize images.
