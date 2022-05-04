@@ -192,3 +192,33 @@ class BrightnessTransformMultiChannel(auto_augment.BrightnessTransform):
         results['img'] = original_img
 
         return results
+
+@PIPELINES.register_module()
+class NormalizeMinMaxChannelwise:
+    """Normalize the image channelwise.
+    """
+
+    def __init__(self):
+        print("Normalizing array between 0 and 1 per channel")
+
+    def __call__(self, results):
+        """Call function to normalize images.
+
+        Args:
+            results (dict): Result dict from loading pipeline.
+
+        Returns:
+            dict: Normalized results, 'img_norm_cfg' key is added into
+                result dict.
+        """
+        for key in results.get('img_fields', ['img']):
+
+            for c in range(0, results[key].shape[-1]):
+                channel = results[key][:,:,c]
+                channel -= np.min(channel)
+                channel /= np.max(channel)
+
+                results[key][:,:,c]=channel
+                
+        return results
+
